@@ -41,8 +41,8 @@ export const useTodos = () => {
     // 초기 실행
     updateRemainingTime();
 
-    // 10초마다 업데이트
-    const interval = setInterval(updateRemainingTime, 10000);
+    // 1초마다 업데이트 (기존: 10000ms → 변경: 1000ms)
+    const interval = setInterval(updateRemainingTime, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -73,8 +73,8 @@ export const useTodos = () => {
     // 초기 실행
     updateRemainingTimeAndCheckReset();
 
-    // 10초마다 체크
-    const interval = setInterval(updateRemainingTimeAndCheckReset, 10000);
+    // 1초마다 체크 (기존: 10000ms → 변경: 1000ms)
+    const interval = setInterval(updateRemainingTimeAndCheckReset, 1000);
 
     // 탭 전환 시 체크
     document.addEventListener("visibilitychange", handleVisibilityChange);

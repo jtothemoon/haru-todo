@@ -75,23 +75,21 @@ export const checkAndResetIfNeeded = (): boolean => {
   const now = new Date();
   const today = getTodayString();
   const resetTime = getResetTime();
-  const lastResetDate = getLastResetDate();
+  // const lastResetDate = getLastResetDate();
   
   // 디버깅용 로그
-  console.log('현재 시간:', now.toLocaleString());
-  console.log('리셋 시간:', resetTime);
-  console.log('마지막 리셋:', lastResetDate);
-  console.log('오늘 날짜:', today);
+  // console.log('현재 시간:', now.toLocaleString());
+  // console.log('리셋 시간:', resetTime);
+  // console.log('마지막 리셋:', lastResetDate);
+  // console.log('오늘 날짜:', today);
   
   // 리셋 시간 파싱 (HH:MM)
   const [hours, minutes] = resetTime.split(':').map(Number);
   
   // 개발용: 오늘 이미 리셋했어도 다시 리셋 허용
-  /*
-  if (lastResetDate === today) {
-    return false;
-  }
-  */
+  // if (lastResetDate === today) {
+  //   return false;
+  // }
   
   // 현재 시간이 리셋 시간을 지났으면 리셋
   const todayResetTime = new Date();

@@ -52,3 +52,12 @@ export const getCurrentTime = () => {
 export const getDateString = (date: Date = new Date()) => {
   return date.toISOString().split('T')[0];
 };
+
+// 시간 포맷 변환 (13:30 → 오후 1:30)
+export const formatTime = (time: string): string => {
+  const [hours, minutes] = time.split(":");
+  const hour = parseInt(hours);
+  const isPM = hour >= 12;
+  const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+  return `${isPM ? "오후" : "오전"} ${displayHour}:${minutes}`;
+};

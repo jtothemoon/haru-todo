@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
 import { TodoItem } from "@/types/todo";
-import { loadTodayData, saveTodayData } from "@/lib/storage";
+import {
+  loadTodayData,
+  saveTodayData,
+  checkAndResetIfNeeded,
+} from "@/lib/storage";
 import { PRIORITY_LIMITS, priorityLabels } from "@/lib/constants";
+import { getAllProgress } from "@/lib/todoUtils";
+import {
+  getRemainingTimeFromStorage,
+  formatRemainingTime,
+} from "@/lib/timeUtils";
 
 export const useTodos = () => {
   // 상태 관리
@@ -9,15 +18,84 @@ export const useTodos = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [newTodoText, setNewTodoText] = useState("");
-  const [selectedPriority, setSelectedPriority] = useState<TodoItem["priority"]>("low");
+  const [selectedPriority, setSelectedPriority] =
+    useState<TodoItem["priority"]>("low");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState("");
+
+  const [remainingTime, setRemainingTime] = useState("");
 
   // 초기 데이터 로드
   useEffect(() => {
     setTodos(loadTodayData());
     setIsLoaded(true);
   }, []);
+
+  useEffect(() => {
+    // 남은 시간 업데이트 함수
+    const updateRemainingTime = () => {
+      const { hours, minutes } = getRemainingTimeFromStorage();
+      setRemainingTime(formatRemainingTime(hours, minutes));
+    };
+
+    // 초기 실행
+    updateRemainingTime();
+
+    // 10초마다 업데이트
+    const interval = setInterval(updateRemainingTime, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const updateRemainingTimeAndCheckReset = () => {
+      // 1. 리셋 체크
+      const wasReset = checkAndResetIfNeeded();
+
+      // 2. 리셋되었다면 모든 상태 초기화
+      if (wasReset) {
+        resetAllStates();
+        console.log("🔄 자동 리셋 실행됨");
+      }
+
+      // 3. 남은 시간 업데이트
+      const { hours, minutes } = getRemainingTimeFromStorage();
+      setRemainingTime(formatRemainingTime(hours, minutes));
+    };
+
+    // Page Visibility API - 탭 포커스 시 체크
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        updateRemainingTimeAndCheckReset();
+      }
+    };
+
+    // 초기 실행
+    updateRemainingTimeAndCheckReset();
+
+    // 10초마다 체크
+    const interval = setInterval(updateRemainingTimeAndCheckReset, 10000);
+
+    // 탭 전환 시 체크
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  // 모든 상태 초기화 함수
+  const resetAllStates = () => {
+    setTodos([]);
+    setIsAdding(false);
+    setNewTodoText("");
+    setSelectedPriority("low");
+    setEditingId(null);
+    setEditingText("");
+  };
+
+  const progress = getAllProgress(todos);
 
   // 유틸리티 함수들
   const getPriorityCount = (priority: TodoItem["priority"]) => {
@@ -145,6 +223,12 @@ export const useTodos = () => {
     selectedPriority,
     editingId,
     editingText,
+
+    // 진행률
+    progress,
+
+    // 남은 시간
+    remainingTime,
 
     // 상태 변경 함수
     setNewTodoText,

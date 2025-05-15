@@ -5,9 +5,9 @@ import { useTodos } from "@/hooks/useTodos";
 
 import TodoItem from "./TodoItem";
 import AddTodo from "./AddTodo";
+import TodoProgress from "./TodoProgress";
 
 export default function TodoList() {
-
   const {
     todos,
     isLoaded,
@@ -33,6 +33,8 @@ export default function TodoList() {
     startAdding,
     cancelAdding,
     PRIORITY_LIMITS,
+    progress,
+    remainingTime,
   } = useTodos();
 
   // 로딩 중일 때 표시
@@ -46,7 +48,10 @@ export default function TodoList() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <div className="text-right mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-gray-600">
+          ⏰ 오늘 남은 시간: {remainingTime}
+        </div>
         <Link
           href="/settings"
           className="text-sm text-gray-500 hover:text-gray-700 underline"
@@ -54,6 +59,7 @@ export default function TodoList() {
           설정
         </Link>
       </div>
+      <TodoProgress progress={progress} />
       <div className="space-y-2">
         {todos.map((todo) => (
           <TodoItem
